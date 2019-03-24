@@ -2,7 +2,7 @@
  * @Author: Ali
  * @Date:   2019-03-22T10:38:47+01:00
  * @Last modified by:   Ali
- * @Last modified time: 2019-03-24T13:06:31+01:00
+ * @Last modified time: 2019-03-24T18:58:45+01:00
  */
 import React, { Component } from "react";
 import Score from "./Score";
@@ -22,7 +22,19 @@ class WordInput extends Component {
   }
   componentDidMount() {
     this.showWord();
+    setInterval(this.counter, 1000);
   }
+  counter = () => {
+    if (this.state.time > 0) {
+      this.setState({ time: this.state.time - 1 });
+    } else if (this.state.time === 0) {
+      this.setState({
+        message: "Game Over",
+        isPlaying: false,
+        score: 0
+      });
+    }
+  };
   showWord = () => {
     const randIndex = Math.floor(Math.random() * this.state.words.length);
     this.setState({
@@ -38,7 +50,7 @@ class WordInput extends Component {
     if (input === randWord) {
       this.setState({
         isPlaying: true,
-        time: 10,
+        time: 6,
         input: "",
         message: "Correct!!!!",
         score: this.state.score + 1
@@ -56,7 +68,8 @@ class WordInput extends Component {
             <p className="lead">
               Type the given word within
               <span className="text-warning font-weight-bold" id="seconds">
-                {this.state.time}
+                {" "}
+                {this.state.time}{" "}
               </span>
               seconds :
             </p>
@@ -77,7 +90,7 @@ class WordInput extends Component {
             </h4>
           </div>
         </div>
-        <Score score={this.state.score} />
+        <Score score={this.state.score} time={this.state.time} />
       </>
     );
   }
