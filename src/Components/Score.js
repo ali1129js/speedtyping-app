@@ -2,11 +2,11 @@
  * @Author: Ali
  * @Date:   2019-03-22T11:05:07+01:00
  * @Last modified by:   Ali
- * @Last modified time: 2019-03-22T11:06:05+01:00
+ * @Last modified time: 2019-03-24T11:18:57+01:00
  */
 import React from "react";
 
-const Score = () => (
+const Score = props => (
   <div className="row mt-5">
     <div className="col-md-6">
       <h3>
@@ -17,7 +17,7 @@ const Score = () => (
     <div className="col-md-6">
       <h3>
         Score:
-        <span id="score">0</span>
+        <span id="score">{props.score}</span>
       </h3>
     </div>
   </div>
