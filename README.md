@@ -1,1 +1,38 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Speed Typing
+
+A timed typing test with live WPM, accuracy, and character highlighting. Choose 30 or 60 seconds, pick a text, and start typing. Your best score for each length is saved in `localStorage`.
+
+Rebuilt in 2026 (original 2019, AI pair-programmed 2026). The 2019 app was called WordBeater: a Create React App class component where you typed a single random word within five seconds. This version keeps the speed-typing idea, but uses a full passage, a proper timed test, and React 19 with strict TypeScript.
+
+The public GitHub repo later only kept the built GitHub Pages files. The last source is commit `7e4e1ed` on this history.
+
+## Features
+
+- 30 or 60 second tests. The clock starts on the first character.
+- Live words per minute and accuracy. WPM uses correct characters divided by five, over the time elapsed.
+- Each character is marked correct, incorrect, or still to type. The current character is highlighted.
+- Restart from the button, or by pressing Escape. The test is usable from the keyboard alone.
+- A best score per duration, kept in `localStorage`.
+- A short list of texts: original passages, plus public-domain excerpts from Alice's Adventures in Wonderland and Pride and Prejudice, and the traditional pangram.
+- Light and dark themes. The first visit follows the operating system. The choice is remembered.
+- Desktop first. At 390 px wide the stats wrap to two columns and the layout does not scroll sideways.
+
+Everything stays on your machine. There is no server and no account.
+
+## Stack
+
+Vite, React 19, TypeScript (`strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`), Zod 4, Vitest and Testing Library, ESLint, Prettier.
+
+## Scripts
+
+```bash
+npm install
+npm run dev         # http://localhost:5173/
+npm run lint
+npm run typecheck
+npm test
+npm run build       # type-checks, then builds to dist/
+npm run preview
+```
+
+See [docs/LEARN.md](docs/LEARN.md) for a short walk-through of the ideas used in the code.

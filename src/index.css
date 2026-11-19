@@ -1,14 +1,286 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg, #f3efe6);
+  color: var(--text, #1c1917);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  line-height: 1.5;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -4rem;
+  z-index: 10;
+  padding: 0.5rem 0.75rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: 0.5rem;
+}
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+.app {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 3rem;
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.app-title {
+  margin: 0;
+  font-size: 1.75rem;
+  letter-spacing: 0.01em;
+}
+.app-sub {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+}
+
+.app-main:focus {
+  outline: none;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.segment {
+  min-height: 2.5rem;
+  padding: 0.25rem 0.9rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.segment + .segment {
+  border-left: 2px solid var(--border);
+}
+.segment[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+.segment:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.segment:focus-visible {
+  outline-offset: -3px;
+}
+
+.button {
+  min-height: 2.5rem;
+  padding: 0.35rem 0.9rem;
+  border: 2px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  cursor: pointer;
+}
+.button-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.setup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: end;
+  margin-bottom: 0.5rem;
+}
+.select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.select-field select {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.6rem;
+  border: 2px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.passage-source {
+  margin: 0 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+}
+.stats > div {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 0.7rem 0.8rem;
+}
+.stats dt {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.stats dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.stat-sub {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 1rem 1.1rem;
+}
+
+.prompt {
+  position: relative;
+  cursor: text;
+  min-height: 8rem;
+}
+.prompt-text {
+  margin: 0;
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 1.15rem;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ch-correct {
+  color: var(--correct);
+}
+.ch-incorrect {
+  color: var(--incorrect);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+.ch-pending {
+  color: var(--text-muted);
+}
+.ch-current {
+  background: var(--current-bg);
+  border-radius: 0.15rem;
+  padding: 0 0.12em;
+  margin: 0 -0.12em;
+}
+.prompt-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  margin: 0;
+  border: 0;
+  resize: none;
+  cursor: text;
+}
+
+.hint {
+  margin: 0.8rem 0 0;
+  color: var(--text-muted);
+}
+
+.results {
+  margin-top: 1rem;
+}
+.results h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.15rem;
+}
+.results p {
+  margin: 0 0 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 430px) {
+  .app {
+    padding: 0.75rem 0.75rem 2rem;
+  }
+  .app-title {
+    font-size: 1.45rem;
+  }
+  .setup > .button,
+  .setup > .segmented {
+    width: 100%;
+  }
+  .segmented {
+    display: flex;
+  }
+  .segment {
+    flex: 1;
+  }
 }
