@@ -100,7 +100,7 @@ textarea {
 
 .segmented {
   display: inline-flex;
-  border: 2px solid var(--border);
+  border: 2px solid var(--control-border);
   border-radius: 999px;
   overflow: hidden;
   background: var(--surface);
@@ -117,7 +117,7 @@ textarea {
   cursor: pointer;
 }
 .segment + .segment {
-  border-left: 2px solid var(--border);
+  border-left: 2px solid var(--control-border);
 }
 .segment[aria-pressed="true"] {
   font-weight: 700;
@@ -133,7 +133,7 @@ textarea {
 .button {
   min-height: 2.5rem;
   padding: 0.35rem 0.9rem;
-  border: 2px solid var(--border);
+  border: 2px solid var(--control-border);
   border-radius: 0.6rem;
   background: var(--surface);
   cursor: pointer;
@@ -162,7 +162,7 @@ textarea {
   width: 100%;
   min-height: 2.5rem;
   padding: 0.35rem 0.6rem;
-  border: 2px solid var(--border);
+  border: 2px solid var(--control-border);
   border-radius: 0.6rem;
   background: var(--surface);
   color: var(--text);

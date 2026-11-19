@@ -12,6 +12,8 @@ const textPairs: Array<[keyof ThemeTokens, keyof ThemeTokens, number]> = [
   ["surface", "incorrect", 4.5],
   ["currentBg", "currentFg", 4.5],
   ["bg", "border", 3],
+  ["bg", "controlBorder", 3],
+  ["surface", "controlBorder", 3],
   ["bg", "focus", 3],
 ];
 
