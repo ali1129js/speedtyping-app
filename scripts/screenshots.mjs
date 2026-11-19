@@ -1,0 +1,69 @@
+// Usage: APP_URL=http://127.0.0.1:4177/ node scripts/screenshots.mjs <outDir>
+import { mkdirSync } from "node:fs";
+import { chromium } from "playwright-core";
+
+const outDir = process.argv[2] ?? "shots";
+const url = process.env.APP_URL ?? "http://127.0.0.1:4177/";
+mkdirSync(outDir, { recursive: true });
+
+const browser = await chromium.launch({
+  executablePath: process.env.CHROME_PATH ?? "/usr/bin/google-chrome-stable",
+  args: ["--no-sandbox", "--disable-dev-shm-usage"],
+});
+
+async function shot(name, { theme, motion = "static", width, height, colorScheme }) {
+  const context = await browser.newContext({
+    viewport: { width, height },
+    colorScheme,
+    reducedMotion: motion === "animated" ? "no-preference" : "reduce",
+    locale: "en-GB",
+  });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => console.error("PAGE ERROR", e.message));
+  await page.addInitScript(
+    ([t, m]) => {
+      localStorage.setItem("speedtyping.v1.theme", JSON.stringify(t));
+      localStorage.setItem("speedtyping.v1.motion", JSON.stringify(m));
+    },
+    [theme, motion],
+  );
+  await page.goto(url, { waitUntil: "networkidle" });
+  await page.waitForSelector(".prompt-text");
+  const input = page.getByLabel("Typing test");
+  await input.focus();
+  await input.type("A good workxhop", { delay: 40 });
+  await page.waitForTimeout(3000);
+  const path = `${outDir}/${name}`;
+  await page.screenshot({ path, fullPage: true });
+  const overflowX = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+  );
+  console.log(`wrote ${path}${overflowX ? " (WARN horizontal overflow)" : ""}`);
+  await context.close();
+  return overflowX;
+}
+
+const overflows = [];
+for (const [name, opts] of [
+  ["desktop-khaki-1280.png", { theme: "khaki", width: 1280, height: 900, colorScheme: "light" }],
+  [
+    "desktop-graphite-1280.png",
+    { theme: "graphite", width: 1280, height: 900, colorScheme: "dark" },
+  ],
+  [
+    "desktop-midnight-1280.png",
+    { theme: "midnight", width: 1280, height: 900, colorScheme: "dark" },
+  ],
+  [
+    "desktop-khaki-1280-animated.png",
+    { theme: "khaki", motion: "animated", width: 1280, height: 900, colorScheme: "light" },
+  ],
+]) {
+  if (await shot(name, opts)) overflows.push(name);
+}
+
+await browser.close();
+if (overflows.length) {
+  console.error("horizontal overflow in:", overflows.join(", "));
+  process.exit(1);
+}
