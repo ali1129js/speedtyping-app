@@ -40,6 +40,6 @@ See `src/lib/storage.ts` and `src/test/storage.test.ts`.
 
 ## Theme tokens as CSS variables
 
-Colour tokens live in `src/styles/gloss.css` and are mirrored in TypeScript so a test can check WCAG contrast ratios. The page has three gloss themes — Khaki, Dark grey and Midnight — plus an optional animated background that stays still when `prefers-reduced-motion` is set.
+Colour tokens live in `src/styles/gloss.css` and are mirrored in TypeScript so a test can check WCAG contrast ratios. The page has three gloss themes — Khaki, Graphite and Midnight — plus an optional animated background that stays still when `prefers-reduced-motion` is set.
 
 See `src/styles/gloss.css`, `src/theme/themes.ts` and `src/test/theme.test.ts`.

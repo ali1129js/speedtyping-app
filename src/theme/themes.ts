@@ -19,13 +19,13 @@ export interface ThemeTokens {
 
 export const THEME_LABELS: Readonly<Record<ThemeName, string>> = {
   khaki: "Khaki",
-  darkgrey: "Dark grey",
+  graphite: "Graphite",
   midnight: "Midnight",
 };
 
 export const COLOR_SCHEME: Readonly<Record<ThemeName, "light" | "dark">> = {
   khaki: "light",
-  darkgrey: "dark",
+  graphite: "dark",
   midnight: "dark",
 };
 
@@ -61,12 +61,12 @@ export const THEMES: Readonly<Record<ThemeName, ThemeTokens>> = {
     danger: GLOSS.garnet,
     onDanger: GLOSS.onGarnet,
   },
-  darkgrey: {
-    bg: "#2A2C30",
-    surface: "#3A3D43",
-    text: "#E6E6E6",
-    textMuted: "#C5C8CE",
-    border: "#8A8E96",
+  graphite: {
+    bg: "#1E2329",
+    surface: "#2A313A",
+    text: "#E8ECF1",
+    textMuted: "#A7B0BC",
+    border: "#3A4350",
     accent: GLOSS.cobalt,
     onAccent: GLOSS.onCobalt,
     focus: "#8DAEFF",

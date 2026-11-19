@@ -1,12 +1,13 @@
 export const DURATIONS = [30, 60] as const;
 export type Duration = (typeof DURATIONS)[number];
 
-export const THEME_NAMES = ["khaki", "darkgrey", "midnight"] as const;
+export const THEME_NAMES = ["khaki", "graphite", "midnight"] as const;
 export type ThemeName = (typeof THEME_NAMES)[number];
 
 export const LEGACY_THEMES: Readonly<Record<string, ThemeName>> = {
   light: "khaki",
-  dark: "darkgrey",
+  dark: "graphite",
+  darkgrey: "graphite",
 };
 
 export const MOTION_NAMES = ["static", "animated"] as const;

@@ -37,7 +37,7 @@ describe("readStored", () => {
 
 describe("preferredTheme", () => {
   it("follows the operating system", () => {
-    expect(preferredTheme((query) => ({ matches: query.includes("dark") }))).toBe("darkgrey");
+    expect(preferredTheme((query) => ({ matches: query.includes("dark") }))).toBe("graphite");
     expect(preferredTheme(() => ({ matches: false }))).toBe("khaki");
   });
 });
