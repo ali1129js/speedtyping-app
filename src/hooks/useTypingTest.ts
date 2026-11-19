@@ -58,8 +58,7 @@ export function useTypingTest(target: string, duration: Duration): TypingTestSta
     [phase],
   );
 
-  const capElapsed =
-    phase === "finished" ? Math.min(elapsedMs, duration * 1000) : elapsedMs;
+  const capElapsed = phase === "finished" ? Math.min(elapsedMs, duration * 1000) : elapsedMs;
   const stats = useMemo(() => statsFor(target, typed, capElapsed), [target, typed, capElapsed]);
   const remaining = remainingMs(duration, capElapsed);
 

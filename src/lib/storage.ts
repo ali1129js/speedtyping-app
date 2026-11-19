@@ -1,13 +1,19 @@
 import { z } from "zod";
 import type { BestScore, BestScores, Duration, ThemeName } from "./types";
-import { THEME_NAMES } from "./types";
+import { LEGACY_THEMES, MOTION_NAMES, THEME_NAMES } from "./types";
 
 export const KEYS = {
   theme: "speedtyping.v1.theme",
+  motion: "speedtyping.v1.motion",
   best: "speedtyping.v1.best",
 } as const;
 
-export const themeSchema = z.enum(THEME_NAMES);
+export const motionSchema = z.enum(MOTION_NAMES);
+
+export const themeSchema = z.preprocess(
+  (value) => (typeof value === "string" && value in LEGACY_THEMES ? LEGACY_THEMES[value] : value),
+  z.enum(THEME_NAMES),
+);
 
 const bestScoreSchema = z.object({
   wpm: z.number().nonnegative(),
@@ -42,7 +48,7 @@ export function writeStored(key: string, value: unknown): void {
 export function preferredTheme(
   match: (query: string) => { matches: boolean } = (query) => window.matchMedia(query),
 ): ThemeName {
-  return match("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return match("(prefers-color-scheme: dark)").matches ? "darkgrey" : "khaki";
 }
 
 export function recordBest(

@@ -15,7 +15,9 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: "Speed Typing" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "30s" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("timer")).toHaveTextContent("0:30");
-    expect(screen.getByText("Start typing. The timer begins on the first character.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Start typing. The timer begins on the first character."),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("Typing test")).toHaveValue("");
   });
 
@@ -71,8 +73,22 @@ describe("App", () => {
   it("switches theme and stores the choice", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: "Dark" }));
-    expect(document.documentElement.dataset.theme).toBe("dark");
-    expect(localStorage.getItem(KEYS.theme)).toBe(JSON.stringify("dark"));
+    await user.click(screen.getByRole("button", { name: "Dark grey" }));
+    expect(document.documentElement.dataset.theme).toBe("darkgrey");
+    expect(localStorage.getItem(KEYS.theme)).toBe(JSON.stringify("darkgrey"));
+  });
+
+  it("keeps background motion static by default and persists a change", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const toggle = screen.getByRole("button", { name: "Animated background" });
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+    expect(document.documentElement.dataset.motion).toBe("static");
+    expect(localStorage.getItem(KEYS.motion)).toBeNull();
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(document.documentElement.dataset.motion).toBe("animated");
+    expect(localStorage.getItem(KEYS.motion)).toBe(JSON.stringify("animated"));
   });
 });

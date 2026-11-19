@@ -3,7 +3,7 @@
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "Speed typing test: timed WPM and accuracy, light and dark themes. Strict TypeScript.",
+  "description": "Speed typing test: timed WPM and accuracy, gloss colour scheme. Strict TypeScript.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

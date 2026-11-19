@@ -37,3 +37,9 @@ See `src/components/Prompt.tsx` and `src/App.tsx`.
 The best WPM for 30s and 60s is written to `localStorage` as JSON, then checked with a Zod schema on the way back in. Corrupt data is ignored, so a broken value cannot crash the page. A new result replaces the stored one only when the WPM is higher, or when the WPM is the same and the accuracy is better.
 
 See `src/lib/storage.ts` and `src/test/storage.test.ts`.
+
+## Theme tokens as CSS variables
+
+Colour tokens live in `src/styles/gloss.css` and are mirrored in TypeScript so a test can check WCAG contrast ratios. The page has three gloss themes — Khaki, Dark grey and Midnight — plus an optional animated background that stays still when `prefers-reduced-motion` is set.
+
+See `src/styles/gloss.css`, `src/theme/themes.ts` and `src/test/theme.test.ts`.

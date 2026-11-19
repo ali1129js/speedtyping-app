@@ -66,7 +66,12 @@ export function remainingMs(durationSec: Duration, elapsedMs: number): number {
   return Math.max(0, durationSec * 1000 - elapsedMs);
 }
 
-export function hasFinished(target: string, typed: string, elapsedMs: number, durationSec: Duration): boolean {
+export function hasFinished(
+  target: string,
+  typed: string,
+  elapsedMs: number,
+  durationSec: Duration,
+): boolean {
   if (elapsedMs >= durationSec * 1000) return true;
   return typed.length >= target.length;
 }

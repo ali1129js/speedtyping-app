@@ -1,3 +1,5 @@
+@import "./styles/gloss.css";
+
 *,
 *::before,
 *::after {
@@ -10,8 +12,8 @@ html {
 
 body {
   margin: 0;
-  background: var(--bg, #f3efe6);
-  color: var(--text, #1c1917);
+  background: var(--bg, #d8cdae);
+  color: var(--text, #2a2418);
   font-family:
     system-ui,
     -apple-system,
@@ -53,9 +55,9 @@ textarea {
   top: -4rem;
   z-index: 10;
   padding: 0.5rem 0.75rem;
-  background: var(--accent);
-  color: var(--on-accent);
   border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 700;
 }
 .skip-link:focus {
   top: 0.5rem;
@@ -74,6 +76,13 @@ textarea {
   justify-content: space-between;
   gap: 0.75rem 1.5rem;
   margin-bottom: 1.25rem;
+}
+.app-header > div:first-of-type {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.theme-tools {
+  flex-shrink: 0;
 }
 .app-title {
   margin: 0;
@@ -96,6 +105,10 @@ textarea {
   overflow: hidden;
   background: var(--surface);
 }
+.segmented.wrap {
+  flex-wrap: wrap;
+  border-radius: 0.75rem;
+}
 .segment {
   min-height: 2.5rem;
   padding: 0.25rem 0.9rem;
@@ -107,8 +120,6 @@ textarea {
   border-left: 2px solid var(--border);
 }
 .segment[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--on-accent);
   font-weight: 700;
 }
 .segment:disabled {
@@ -128,9 +139,6 @@ textarea {
   cursor: pointer;
 }
 .button-primary {
-  background: var(--accent);
-  color: var(--on-accent);
-  border-color: var(--accent);
   font-weight: 700;
 }
 
@@ -173,7 +181,6 @@ textarea {
   margin: 0 0 1rem;
 }
 .stats > div {
-  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 0.85rem;
   padding: 0.7rem 0.8rem;
@@ -196,7 +203,6 @@ textarea {
 }
 
 .card {
-  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 0.85rem;
   padding: 1rem 1.1rem;
@@ -227,7 +233,6 @@ textarea {
   color: var(--text-muted);
 }
 .ch-current {
-  background: var(--current-bg);
   border-radius: 0.15rem;
   padding: 0 0.12em;
   margin: 0 -0.12em;

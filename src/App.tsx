@@ -4,15 +4,25 @@ import { StatsBar } from "./components/StatsBar";
 import { useStoredState } from "./hooks/useStoredState";
 import { useTypingTest } from "./hooks/useTypingTest";
 import { formatAccuracy, formatWpm } from "./lib/engine";
-import { KEYS, bestScoresSchema, preferredTheme, recordBest, themeSchema } from "./lib/storage";
+import {
+  KEYS,
+  bestScoresSchema,
+  motionSchema,
+  preferredTheme,
+  recordBest,
+  themeSchema,
+} from "./lib/storage";
 import { DEFAULT_PASSAGE_ID, PASSAGES, passageById } from "./lib/texts";
 import { DURATIONS } from "./lib/types";
-import type { BestScores, Duration, ThemeName } from "./lib/types";
+import type { BestScores, Duration, MotionName, ThemeName } from "./lib/types";
+import { MotionToggle } from "./theme/MotionToggle";
 import { ThemeSwitcher } from "./theme/ThemeSwitcher";
-import { applyTheme } from "./theme/themes";
+import { applyMotion, applyTheme, prefersReducedMotion } from "./theme/themes";
 
 export function App() {
   const [theme, setTheme] = useStoredState<ThemeName>(KEYS.theme, themeSchema, preferredTheme());
+  const [motion, setMotion] = useStoredState<MotionName>(KEYS.motion, motionSchema, "static");
+  const reducedMotion = prefersReducedMotion();
   const [best, setBest] = useStoredState<BestScores>(KEYS.best, bestScoresSchema, {});
   const [duration, setDuration] = useState<Duration>(30);
   const [passageId, setPassageId] = useState(DEFAULT_PASSAGE_ID);
@@ -22,6 +32,10 @@ export function App() {
   const [isNewBest, setIsNewBest] = useState(false);
 
   useEffect(() => applyTheme(theme), [theme]);
+  useEffect(
+    () => applyMotion(motion, document.documentElement, reducedMotion),
+    [motion, reducedMotion],
+  );
 
   useEffect(() => {
     if (test.phase === "idle") {
@@ -78,7 +92,10 @@ export function App() {
           <h1 className="app-title">Speed Typing</h1>
           <p className="app-sub">A timed test with live WPM and accuracy. Formerly WordBeater.</p>
         </div>
-        <ThemeSwitcher value={theme} onChange={setTheme} />
+        <div className="theme-tools">
+          <ThemeSwitcher value={theme} onChange={setTheme} />
+          <MotionToggle value={motion} onChange={setMotion} reducedMotion={reducedMotion} />
+        </div>
       </header>
 
       <main id="main" tabIndex={-1} className="app-main">
@@ -127,7 +144,12 @@ export function App() {
           best={bestForDuration}
         />
 
-        <Prompt target={passage.text} typed={test.typed} phase={test.phase} onTyped={test.onTyped} />
+        <Prompt
+          target={passage.text}
+          typed={test.typed}
+          phase={test.phase}
+          onTyped={test.onTyped}
+        />
 
         <p className="hint" aria-live="polite">
           {status}
@@ -137,8 +159,8 @@ export function App() {
           <section className="card results" aria-label="Test result">
             <h2>Result</h2>
             <p>
-              <strong>{formatWpm(test.stats.wpm)} WPM</strong> at {formatAccuracy(test.stats.accuracy)}{" "}
-              accuracy.
+              <strong>{formatWpm(test.stats.wpm)} WPM</strong> at{" "}
+              {formatAccuracy(test.stats.accuracy)} accuracy.
               {isNewBest
                 ? " A new best for this length."
                 : bestForDuration

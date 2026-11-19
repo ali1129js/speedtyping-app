@@ -25,9 +25,9 @@ describe("recordBest", () => {
 
 describe("readStored", () => {
   it("returns the fallback for missing or invalid values", () => {
-    expect(readStored(KEYS.theme, themeSchema, "light")).toBe("light");
+    expect(readStored(KEYS.theme, themeSchema, "khaki")).toBe("khaki");
     localStorage.setItem(KEYS.theme, "{nope");
-    expect(readStored(KEYS.theme, themeSchema, "light")).toBe("light");
+    expect(readStored(KEYS.theme, themeSchema, "khaki")).toBe("khaki");
     localStorage.setItem(KEYS.best, JSON.stringify({ "30": { wpm: "fast" } }));
     expect(readStored(KEYS.best, bestScoresSchema, {})).toEqual({});
     localStorage.setItem(KEYS.best, JSON.stringify({ "30": { wpm: 42, accuracy: 98, at: "x" } }));
@@ -37,7 +37,7 @@ describe("readStored", () => {
 
 describe("preferredTheme", () => {
   it("follows the operating system", () => {
-    expect(preferredTheme((query) => ({ matches: query.includes("dark") }))).toBe("dark");
-    expect(preferredTheme(() => ({ matches: false }))).toBe("light");
+    expect(preferredTheme((query) => ({ matches: query.includes("dark") }))).toBe("darkgrey");
+    expect(preferredTheme(() => ({ matches: false }))).toBe("khaki");
   });
 });
