@@ -1,14 +1,17 @@
 import { z } from "zod";
 import type { BestScore, BestScores, Duration, ThemeName } from "./types";
-import { LEGACY_THEMES, MOTION_NAMES, THEME_NAMES } from "./types";
+import { LEGACY_THEMES, LOCALE_NAMES, MOTION_NAMES, THEME_NAMES } from "./types";
 
 export const KEYS = {
   theme: "speedtyping.v1.theme",
   motion: "speedtyping.v1.motion",
   best: "speedtyping.v1.best",
+  locale: "speedtyping.v1.locale",
 } as const;
 
 export const motionSchema = z.enum(MOTION_NAMES);
+
+export const localeSchema = z.enum(LOCALE_NAMES);
 
 export const themeSchema = z.preprocess(
   (value) => (typeof value === "string" && value in LEGACY_THEMES ? LEGACY_THEMES[value] : value),

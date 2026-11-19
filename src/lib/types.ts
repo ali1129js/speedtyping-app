@@ -13,6 +13,9 @@ export const LEGACY_THEMES: Readonly<Record<string, ThemeName>> = {
 export const MOTION_NAMES = ["static", "animated"] as const;
 export type MotionName = (typeof MOTION_NAMES)[number];
 
+export const LOCALE_NAMES = ["en", "de"] as const;
+export type LocaleName = (typeof LOCALE_NAMES)[number];
+
 export type Phase = "idle" | "running" | "finished";
 
 export type CharMark = "pending" | "correct" | "incorrect" | "current";

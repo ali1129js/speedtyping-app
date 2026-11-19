@@ -14,6 +14,7 @@ The public GitHub repo later only kept the built GitHub Pages files. The last so
 - Restart from the button, or by pressing Escape. The test is usable from the keyboard alone.
 - A best score per duration, kept in `localStorage`.
 - A short list of texts: original passages, plus public-domain excerpts from Alice's Adventures in Wonderland and Pride and Prejudice, and the traditional pangram.
+- The UI is English or German. English is the default. The choice is remembered, like the theme, and sets the page language.
 - Three themes from the gloss colour scheme: Khaki (the default light background), Graphite and Midnight. The first visit follows the operating system. The choice is remembered. A button next to the switch can turn on a slow, optional background motion; it stays off if you prefer reduced motion.
 - Desktop first. At 390 px wide the stats wrap to two columns and the layout does not scroll sideways.
 

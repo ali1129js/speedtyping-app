@@ -5,11 +5,12 @@ import { THEME_LABELS } from "./themes";
 interface Props {
   value: ThemeName;
   onChange: (theme: ThemeName) => void;
+  label: string;
 }
 
-export function ThemeSwitcher({ value, onChange }: Props) {
+export function ThemeSwitcher({ value, onChange, label }: Props) {
   return (
-    <div role="group" aria-label="Theme" className="segmented wrap">
+    <div role="group" aria-label={label} className="segmented wrap">
       {THEME_NAMES.map((name) => (
         <button
           key={name}

@@ -7,6 +7,7 @@ import {
   formatWpm,
   hasFinished,
   marksFor,
+  normalizeTyping,
   remainingMs,
   statsFor,
   wordsPerMinute,
@@ -96,5 +97,23 @@ describe("formatters", () => {
     expect(formatClock(1000)).toBe("0:01");
     expect(formatClock(0)).toBe("0:00");
     expect(formatClock(90_000)).toBe("1:30");
+  });
+});
+
+describe("NFC normalisation", () => {
+  it("treats precomposed and combining umlauts as the same typable character", () => {
+    const nfc = "Käse".normalize("NFC");
+    const nfd = "Käse".normalize("NFD");
+    expect(nfd).not.toBe(nfc);
+    expect(nfd.length).toBeGreaterThan(nfc.length);
+    expect(normalizeTyping(nfd)).toBe(nfc);
+    expect(countTyped(nfc, nfd)).toEqual({ correct: nfc.length, incorrect: 0 });
+    expect(marksFor(nfc, nfd).every((item) => item.mark === "correct")).toBe(true);
+    expect(hasFinished(nfc, nfd, 1_000, 30)).toBe(true);
+  });
+
+  it("counts ß as a single typable character", () => {
+    expect(countTyped("groß", "groß")).toEqual({ correct: 4, incorrect: 0 });
+    expect(marksFor("groß", "gross")[3]?.mark).toBe("incorrect");
   });
 });

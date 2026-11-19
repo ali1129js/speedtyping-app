@@ -7,9 +7,10 @@ interface Props {
   typed: string;
   phase: Phase;
   onTyped: (value: string) => void;
+  label: string;
 }
 
-export function Prompt({ target, typed, phase, onTyped }: Props) {
+export function Prompt({ target, typed, phase, onTyped, label }: Props) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const marks = marksFor(target, typed);
   const disabled = phase === "finished";
@@ -21,7 +22,7 @@ export function Prompt({ target, typed, phase, onTyped }: Props) {
   return (
     <div className="prompt card" onClick={() => inputRef.current?.focus()}>
       <label htmlFor="typing-input" className="sr-only">
-        Typing test
+        {label}
       </label>
       <p className="prompt-text" aria-hidden="true">
         {marks.map((item, index) => (
@@ -41,7 +42,7 @@ export function Prompt({ target, typed, phase, onTyped }: Props) {
         autoComplete="off"
         spellCheck={false}
         onChange={(event) => onTyped(event.target.value)}
-        aria-label="Typing test"
+        aria-label={label}
       />
     </div>
   );

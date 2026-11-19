@@ -12,8 +12,15 @@ export interface TypingStats {
   accuracy: number;
 }
 
+/** Compose typable text so ä/ö/ü/ß match whether they arrive precomposed or as combining marks. */
+export function normalizeTyping(value: string): string {
+  return value.normalize("NFC");
+}
+
 /** One mark per character in the target, plus any extra typed characters past the end. */
 export function marksFor(target: string, typed: string): CharView[] {
+  target = normalizeTyping(target);
+  typed = normalizeTyping(typed);
   const views: CharView[] = [];
   const length = Math.max(target.length, typed.length);
   for (let index = 0; index < length; index += 1) {
@@ -30,6 +37,8 @@ export function marksFor(target: string, typed: string): CharView[] {
 }
 
 export function countTyped(target: string, typed: string): { correct: number; incorrect: number } {
+  target = normalizeTyping(target);
+  typed = normalizeTyping(typed);
   let correct = 0;
   let incorrect = 0;
   for (let index = 0; index < typed.length; index += 1) {
@@ -73,7 +82,7 @@ export function hasFinished(
   durationSec: Duration,
 ): boolean {
   if (elapsedMs >= durationSec * 1000) return true;
-  return typed.length >= target.length;
+  return normalizeTyping(typed).length >= normalizeTyping(target).length;
 }
 
 export function formatWpm(wpm: number): string {

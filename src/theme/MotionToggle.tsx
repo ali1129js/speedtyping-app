@@ -4,6 +4,8 @@ interface Props {
   value: MotionName;
   onChange: (motion: MotionName) => void;
   reducedMotion: boolean;
+  label: string;
+  reducedLabel: string;
 }
 
 function MotionIcon({ pressed }: { pressed: boolean }) {
@@ -22,16 +24,14 @@ function MotionIcon({ pressed }: { pressed: boolean }) {
   );
 }
 
-export function MotionToggle({ value, onChange, reducedMotion }: Props) {
+export function MotionToggle({ value, onChange, reducedMotion, label, reducedLabel }: Props) {
   const pressed = !reducedMotion && value === "animated";
-  const label = reducedMotion
-    ? "Animated background (reduced motion is on)"
-    : "Animated background";
+  const accessibleLabel = reducedMotion ? reducedLabel : label;
   return (
     <button
       type="button"
       className="motion-toggle"
-      aria-label={label}
+      aria-label={accessibleLabel}
       aria-pressed={pressed}
       disabled={reducedMotion}
       onClick={() => onChange(pressed ? "static" : "animated")}

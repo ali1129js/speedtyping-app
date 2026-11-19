@@ -1,3 +1,4 @@
+import { fill, type UIStrings } from "../lib/i18n";
 import { formatAccuracy, formatClock, formatWpm } from "../lib/engine";
 import type { TypingStats } from "../lib/engine";
 import type { BestScore, Duration, Phase } from "../lib/types";
@@ -8,14 +9,15 @@ interface Props {
   phase: Phase;
   stats: TypingStats;
   best: BestScore | undefined;
+  strings: UIStrings;
 }
 
-export function StatsBar({ duration, remaining, phase, stats, best }: Props) {
+export function StatsBar({ duration, remaining, phase, stats, best, strings }: Props) {
   const timeLabel = phase === "finished" ? "0:00" : formatClock(remaining);
   return (
     <dl className="stats">
       <div>
-        <dt>Time left</dt>
+        <dt>{strings.timeLeft}</dt>
         <dd>
           <span aria-live="polite" role="timer">
             {timeLabel}
@@ -24,16 +26,16 @@ export function StatsBar({ duration, remaining, phase, stats, best }: Props) {
         </dd>
       </div>
       <div>
-        <dt>WPM</dt>
+        <dt>{strings.wpm}</dt>
         <dd aria-live="polite">{formatWpm(stats.wpm)}</dd>
       </div>
       <div>
-        <dt>Accuracy</dt>
+        <dt>{strings.accuracy}</dt>
         <dd aria-live="polite">{formatAccuracy(stats.accuracy)}</dd>
       </div>
       <div>
-        <dt>Best {duration}s</dt>
-        <dd>{best ? `${formatWpm(best.wpm)} WPM` : "—"}</dd>
+        <dt>{fill(strings.best, { duration })}</dt>
+        <dd>{best ? `${formatWpm(best.wpm)} ${strings.wpm}` : "—"}</dd>
       </div>
     </dl>
   );

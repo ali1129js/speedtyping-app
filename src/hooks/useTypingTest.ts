@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { hasFinished, remainingMs, statsFor } from "../lib/engine";
+import { hasFinished, normalizeTyping, remainingMs, statsFor } from "../lib/engine";
 import type { Duration, Phase } from "../lib/types";
 
 export interface TypingTestState {
@@ -53,7 +53,7 @@ export function useTypingTest(target: string, duration: Duration): TypingTestSta
         setStartedAt(Date.now());
         setElapsedMs(0);
       }
-      setTyped(value);
+      setTyped(normalizeTyping(value));
     },
     [phase],
   );

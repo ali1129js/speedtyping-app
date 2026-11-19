@@ -91,4 +91,28 @@ describe("App", () => {
     expect(document.documentElement.dataset.motion).toBe("animated");
     expect(localStorage.getItem(KEYS.motion)).toBe(JSON.stringify("animated"));
   });
+
+  it("defaults to English and persists a switch to German", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    expect(document.documentElement.lang).toBe("en");
+    expect(
+      screen.getByText("Start typing. The timer begins on the first character."),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "DE" }));
+    expect(document.documentElement.lang).toBe("de");
+    expect(
+      screen.getByText("Einfach losschreiben. Die Zeit startet mit dem ersten Zeichen."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Sprache" })).toBeInTheDocument();
+    expect(localStorage.getItem(KEYS.locale)).toBe(JSON.stringify("de"));
+  });
+
+  it("restores German from storage on a fresh render", () => {
+    localStorage.setItem(KEYS.locale, JSON.stringify("de"));
+    render(<App />);
+    expect(document.documentElement.lang).toBe("de");
+    expect(screen.getByText("Restzeit")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "DE" })).toHaveAttribute("aria-pressed", "true");
+  });
 });

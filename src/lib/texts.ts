@@ -1,6 +1,6 @@
-import type { Passage } from "./types";
+import type { LocaleName, Passage } from "./types";
 
-export const PASSAGES: readonly Passage[] = [
+const ENGLISH_PASSAGES: readonly Passage[] = [
   {
     id: "workshop",
     title: "Workshop notes",
@@ -33,16 +33,62 @@ export const PASSAGES: readonly Passage[] = [
   },
 ];
 
+const GERMAN_PASSAGES: readonly Passage[] = [
+  {
+    id: "workshop",
+    title: "Workshop-Notizen",
+    source: "Eigener Text",
+    text: "Ein guter Workshop beginnt mit einer klaren Frage und einer kurzen Liste von Werkzeugen, die schon auf dem Tisch liegen. Zuerst reden die Leute durcheinander, dann schreibt jemand einen Satz an die Tafel, mit dem alle leben können. Der nützliche Teil ist nicht der saubere Plan am Ende. Es ist der Moment, in dem aus einer vagen Sorge eine Aufgabe mit einem Namen, einer Person und einem Termin wird.",
+  },
+  {
+    id: "harbour",
+    title: "Morgen am Hafen",
+    source: "Eigener Text",
+    text: "Der Hafen lag still, als wir ankamen, das Wasser wie Tee in einem dicken Becher. Möwen liefen auf der Mauer, als hätten sie die Steine gemietet. Ein Fischerboot dümpelte am Steg, die Taue nass und dunkel, und die Luft roch nach Salz und Diesel. Wir kauften Brot am ersten Stand, der öffnete, saßen auf den Stufen und sahen, wie das Licht den fernen Hang hinaufwanderte, Haus für Haus, bis die ganze Stadt wach war.",
+  },
+  {
+    id: "grimm",
+    title: "Rotkäppchen",
+    source: "Gebrüder Grimm, Kinder- und Hausmärchen (gemeinfrei)",
+    text: "Es war einmal eine kleine süße Dirne, die hatte jedermann lieb, der sie nur ansah, am allerliebsten aber ihre Großmutter, die wusste gar nicht, was sie alles dem Kinde geben sollte. Einmal schenkte sie ihm ein Käppchen von rotem Sammet, und weil ihm das so wohl stand und es nichts anderes mehr tragen wollte, hieß es nur das Rotkäppchen. Eines Tages sprach die Mutter: Komm, Rotkäppchen, da hast du ein Stück Kuchen und eine Flasche Wein, bring das der Großmutter hinaus.",
+  },
+  {
+    id: "goethe",
+    title: "Ein alter Satz",
+    source: "Eigener Text, im Ton eines gemeinfreien Lesetextes",
+    text: "Es ist ein altes Buch, und doch wirkt alles neu. Wer sich die Mühe macht, genau zu lesen, findet mehr als schöne Sätze: er findet einen Weg, der durch Zweifel und Hoffnung führt. Die großen Fragen bleiben dieselben, nur die Kleider wechseln. Deshalb lohnt es sich, den Text nicht nur zu bewundern, sondern ihn langsam, Satz für Satz, mit der eigenen Stimme zu prüfen.",
+  },
+  {
+    id: "pangram",
+    title: "Pangramm",
+    source: "Traditionelles deutsches Pangramm",
+    text: "Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich.",
+  },
+];
+
+export const PASSAGES_BY_LOCALE: Readonly<Record<LocaleName, readonly Passage[]>> = {
+  en: ENGLISH_PASSAGES,
+  de: GERMAN_PASSAGES,
+};
+
+/** @deprecated Prefer passagesFor(locale). Kept so existing tests can import PASSAGES as English. */
+export const PASSAGES = ENGLISH_PASSAGES;
+
 export const DEFAULT_PASSAGE_ID = "workshop";
 
-function firstPassage(): Passage {
-  const passage = PASSAGES[0];
+export function passagesFor(locale: LocaleName): readonly Passage[] {
+  return PASSAGES_BY_LOCALE[locale];
+}
+
+function firstPassage(list: readonly Passage[]): Passage {
+  const passage = list[0];
   if (passage === undefined) {
     throw new Error("PASSAGES is empty");
   }
   return passage;
 }
 
-export function passageById(id: string): Passage {
-  return PASSAGES.find((passage) => passage.id === id) ?? firstPassage();
+export function passageById(id: string, locale: LocaleName = "en"): Passage {
+  const list = passagesFor(locale);
+  return list.find((passage) => passage.id === id) ?? firstPassage(list);
 }

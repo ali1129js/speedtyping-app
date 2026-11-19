@@ -4,17 +4,20 @@ import { StatsBar } from "./components/StatsBar";
 import { useStoredState } from "./hooks/useStoredState";
 import { useTypingTest } from "./hooks/useTypingTest";
 import { formatAccuracy, formatWpm } from "./lib/engine";
+import { STRINGS, applyLocale, fill } from "./lib/i18n";
 import {
   KEYS,
   bestScoresSchema,
+  localeSchema,
   motionSchema,
   preferredTheme,
   recordBest,
   themeSchema,
 } from "./lib/storage";
-import { DEFAULT_PASSAGE_ID, PASSAGES, passageById } from "./lib/texts";
+import { DEFAULT_PASSAGE_ID, passageById, passagesFor } from "./lib/texts";
 import { DURATIONS } from "./lib/types";
-import type { BestScores, Duration, MotionName, ThemeName } from "./lib/types";
+import type { BestScores, Duration, LocaleName, MotionName, ThemeName } from "./lib/types";
+import { LocaleToggle } from "./theme/LocaleToggle";
 import { MotionToggle } from "./theme/MotionToggle";
 import { ThemeSwitcher } from "./theme/ThemeSwitcher";
 import { applyMotion, applyTheme, prefersReducedMotion } from "./theme/themes";
@@ -22,11 +25,14 @@ import { applyMotion, applyTheme, prefersReducedMotion } from "./theme/themes";
 export function App() {
   const [theme, setTheme] = useStoredState<ThemeName>(KEYS.theme, themeSchema, preferredTheme());
   const [motion, setMotion] = useStoredState<MotionName>(KEYS.motion, motionSchema, "static");
+  const [locale, setLocale] = useStoredState<LocaleName>(KEYS.locale, localeSchema, "en");
   const reducedMotion = prefersReducedMotion();
   const [best, setBest] = useStoredState<BestScores>(KEYS.best, bestScoresSchema, {});
   const [duration, setDuration] = useState<Duration>(30);
   const [passageId, setPassageId] = useState(DEFAULT_PASSAGE_ID);
-  const passage = passageById(passageId);
+  const strings = STRINGS[locale];
+  const passages = passagesFor(locale);
+  const passage = passageById(passageId, locale);
   const test = useTypingTest(passage.text, duration);
   const recorded = useRef(false);
   const [isNewBest, setIsNewBest] = useState(false);
@@ -36,6 +42,13 @@ export function App() {
     () => applyMotion(motion, document.documentElement, reducedMotion),
     [motion, reducedMotion],
   );
+  useEffect(() => applyLocale(locale), [locale]);
+
+  useEffect(() => {
+    if (!passages.some((item) => item.id === passageId)) {
+      setPassageId(DEFAULT_PASSAGE_ID);
+    }
+  }, [passages, passageId]);
 
   useEffect(() => {
     if (test.phase === "idle") {
@@ -77,30 +90,37 @@ export function App() {
   const canChangeSetup = test.phase !== "running";
 
   const status = useMemo(() => {
-    if (test.phase === "idle") return "Start typing. The timer begins on the first character.";
-    if (test.phase === "running") return "Escape restarts the test.";
-    return "The test has finished. Escape or Try again starts a new one.";
-  }, [test.phase]);
+    if (test.phase === "idle") return strings.startHint;
+    if (test.phase === "running") return strings.runningHint;
+    return strings.finishedHint;
+  }, [test.phase, strings]);
 
   return (
     <div className="app">
       <a href="#main" className="skip-link">
-        Skip to content
+        {strings.skipToContent}
       </a>
       <header className="app-header">
         <div>
-          <h1 className="app-title">Speed Typing</h1>
-          <p className="app-sub">A timed test with live WPM and accuracy. Formerly WordBeater.</p>
+          <h1 className="app-title">{strings.title}</h1>
+          <p className="app-sub">{strings.subtitle}</p>
         </div>
         <div className="theme-tools">
-          <ThemeSwitcher value={theme} onChange={setTheme} />
-          <MotionToggle value={motion} onChange={setMotion} reducedMotion={reducedMotion} />
+          <LocaleToggle value={locale} onChange={setLocale} strings={strings} />
+          <ThemeSwitcher value={theme} onChange={setTheme} label={strings.theme} />
+          <MotionToggle
+            value={motion}
+            onChange={setMotion}
+            reducedMotion={reducedMotion}
+            label={strings.animatedBackground}
+            reducedLabel={strings.animatedBackgroundReduced}
+          />
         </div>
       </header>
 
       <main id="main" tabIndex={-1} className="app-main">
         <div className="setup">
-          <div role="group" aria-label="Test length" className="segmented">
+          <div role="group" aria-label={strings.testLength} className="segmented">
             {DURATIONS.map((value) => (
               <button
                 key={value}
@@ -115,14 +135,14 @@ export function App() {
             ))}
           </div>
           <label className="select-field">
-            <span>Text</span>
+            <span>{strings.text}</span>
             <select
               name="passage"
-              value={passageId}
+              value={passage.id}
               disabled={!canChangeSetup}
               onChange={(event) => setPassageId(event.target.value)}
             >
-              {PASSAGES.map((item) => (
+              {passages.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.title}
                 </option>
@@ -130,7 +150,7 @@ export function App() {
             </select>
           </label>
           <button type="button" className="button" onClick={restart}>
-            Restart
+            {strings.restart}
           </button>
         </div>
 
@@ -142,6 +162,7 @@ export function App() {
           phase={test.phase}
           stats={test.stats}
           best={bestForDuration}
+          strings={strings}
         />
 
         <Prompt
@@ -149,6 +170,7 @@ export function App() {
           typed={test.typed}
           phase={test.phase}
           onTyped={test.onTyped}
+          label={strings.typingTest}
         />
 
         <p className="hint" aria-live="polite">
@@ -156,19 +178,26 @@ export function App() {
         </p>
 
         {test.phase === "finished" ? (
-          <section className="card results" aria-label="Test result">
-            <h2>Result</h2>
+          <section className="card results" aria-label={strings.resultAria}>
+            <h2>{strings.result}</h2>
             <p>
-              <strong>{formatWpm(test.stats.wpm)} WPM</strong> at{" "}
-              {formatAccuracy(test.stats.accuracy)} accuracy.
+              <strong>
+                {fill(strings.resultLine, {
+                  wpm: formatWpm(test.stats.wpm),
+                  accuracy: formatAccuracy(test.stats.accuracy),
+                })}
+              </strong>
               {isNewBest
-                ? " A new best for this length."
+                ? ` ${strings.newBest}`
                 : bestForDuration
-                  ? ` Your best ${duration}s is ${formatWpm(bestForDuration.wpm)} WPM.`
+                  ? ` ${fill(strings.yourBest, {
+                      duration,
+                      wpm: formatWpm(bestForDuration.wpm),
+                    })}`
                   : ""}
             </p>
             <button type="button" className="button button-primary" onClick={restart}>
-              Try again
+              {strings.tryAgain}
             </button>
           </section>
         ) : null}
