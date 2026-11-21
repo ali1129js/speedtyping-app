@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { KEYS, preferredTheme, readStored, recordBest, themeSchema } from "../lib/storage";
-import { bestScoresSchema } from "../lib/storage";
+import {
+  KEYS,
+  bestScoresSchema,
+  historySchema,
+  preferredTheme,
+  readStored,
+  recordBest,
+  recordHistory,
+  themeSchema,
+} from "../lib/storage";
+import { passageTitleForRun } from "../lib/texts";
+import type { HistoryRun } from "../lib/types";
 
 describe("recordBest", () => {
   const first = { wpm: 40, accuracy: 96, at: "2026-01-01T00:00:00.000Z" };
@@ -39,5 +49,58 @@ describe("preferredTheme", () => {
   it("follows the operating system", () => {
     expect(preferredTheme((query) => ({ matches: query.includes("dark") }))).toBe("graphite");
     expect(preferredTheme(() => ({ matches: false }))).toBe("khaki");
+  });
+});
+
+function run(overrides: Partial<HistoryRun> = {}): HistoryRun {
+  return {
+    duration: 30,
+    wpm: 40,
+    accuracy: 96,
+    passageId: "harbour",
+    locale: "en",
+    at: "2026-01-01T00:00:00.000Z",
+    ...overrides,
+  };
+}
+
+describe("recordHistory", () => {
+  it("puts the newest run first and caps the list at 10", () => {
+    let history: HistoryRun[] = [];
+    for (let index = 1; index <= 11; index += 1) {
+      history = recordHistory(
+        history,
+        run({
+          wpm: index,
+          at: `2026-01-${String(index).padStart(2, "0")}T00:00:00.000Z`,
+        }),
+      );
+    }
+    expect(history).toHaveLength(10);
+    expect(history[0]?.wpm).toBe(11);
+    expect(history[0]?.at).toBe("2026-01-11T00:00:00.000Z");
+    expect(history[9]?.wpm).toBe(2);
+    expect(history.map((item) => item.wpm)).toEqual([11, 10, 9, 8, 7, 6, 5, 4, 3, 2]);
+  });
+});
+
+describe("history storage", () => {
+  it("ignores corrupt history and keeps a valid list", () => {
+    expect(readStored(KEYS.history, historySchema, [])).toEqual([]);
+    localStorage.setItem(KEYS.history, "{nope");
+    expect(readStored(KEYS.history, historySchema, [])).toEqual([]);
+    localStorage.setItem(KEYS.history, JSON.stringify([{ wpm: "fast" }]));
+    expect(readStored(KEYS.history, historySchema, [])).toEqual([]);
+    const saved = [run()];
+    localStorage.setItem(KEYS.history, JSON.stringify(saved));
+    expect(readStored(KEYS.history, historySchema, [])).toEqual(saved);
+  });
+});
+
+describe("passageTitleForRun", () => {
+  it("uses the locale stored with the run, not the current UI language", () => {
+    expect(passageTitleForRun(run({ passageId: "harbour", locale: "en" }))).toBe("Harbour morning");
+    expect(passageTitleForRun(run({ passageId: "harbour", locale: "de" }))).toBe("Morgen am Hafen");
+    expect(passageTitleForRun(run({ passageId: "pangram", locale: "de" }))).toBe("Pangramm");
   });
 });

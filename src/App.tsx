@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { HistoryList } from "./components/HistoryList";
 import { Prompt } from "./components/Prompt";
 import { StatsBar } from "./components/StatsBar";
 import { useStoredState } from "./hooks/useStoredState";
@@ -8,15 +9,24 @@ import { STRINGS, applyLocale, fill } from "./lib/i18n";
 import {
   KEYS,
   bestScoresSchema,
+  historySchema,
   localeSchema,
   motionSchema,
   preferredTheme,
   recordBest,
+  recordHistory,
   themeSchema,
 } from "./lib/storage";
 import { DEFAULT_PASSAGE_ID, passageById, passagesFor } from "./lib/texts";
 import { DURATIONS } from "./lib/types";
-import type { BestScores, Duration, LocaleName, MotionName, ThemeName } from "./lib/types";
+import type {
+  BestScores,
+  Duration,
+  HistoryRuns,
+  LocaleName,
+  MotionName,
+  ThemeName,
+} from "./lib/types";
 import { LocaleToggle } from "./theme/LocaleToggle";
 import { MotionToggle } from "./theme/MotionToggle";
 import { ThemeSwitcher } from "./theme/ThemeSwitcher";
@@ -28,6 +38,7 @@ export function App() {
   const [locale, setLocale] = useStoredState<LocaleName>(KEYS.locale, localeSchema, "en");
   const reducedMotion = prefersReducedMotion();
   const [best, setBest] = useStoredState<BestScores>(KEYS.best, bestScoresSchema, {});
+  const [history, setHistory] = useStoredState<HistoryRuns>(KEYS.history, historySchema, []);
   const [duration, setDuration] = useState<Duration>(30);
   const [passageId, setPassageId] = useState(DEFAULT_PASSAGE_ID);
   const strings = STRINGS[locale];
@@ -72,7 +83,27 @@ export function App() {
       (candidate.wpm === previous.wpm && candidate.accuracy > previous.accuracy);
     setIsNewBest(improved);
     setBest((current) => recordBest(current, duration, candidate));
-  }, [test.phase, test.stats.wpm, test.stats.accuracy, duration, best, setBest]);
+    setHistory((current) =>
+      recordHistory(current, {
+        duration,
+        wpm: candidate.wpm,
+        accuracy: candidate.accuracy,
+        passageId,
+        locale,
+        at: candidate.at,
+      }),
+    );
+  }, [
+    test.phase,
+    test.stats.wpm,
+    test.stats.accuracy,
+    duration,
+    best,
+    setBest,
+    setHistory,
+    passageId,
+    locale,
+  ]);
 
   const restart = test.restart;
   useEffect(() => {
@@ -200,6 +231,10 @@ export function App() {
               {strings.tryAgain}
             </button>
           </section>
+        ) : null}
+
+        {test.phase === "finished" ? (
+          <HistoryList runs={history} uiLocale={locale} strings={strings} />
         ) : null}
       </main>
     </div>

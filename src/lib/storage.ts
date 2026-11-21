@@ -1,12 +1,13 @@
 import { z } from "zod";
-import type { BestScore, BestScores, Duration, ThemeName } from "./types";
-import { LEGACY_THEMES, LOCALE_NAMES, MOTION_NAMES, THEME_NAMES } from "./types";
+import type { BestScore, BestScores, Duration, HistoryRun, HistoryRuns, ThemeName } from "./types";
+import { HISTORY_LIMIT, LEGACY_THEMES, LOCALE_NAMES, MOTION_NAMES, THEME_NAMES } from "./types";
 
 export const KEYS = {
   theme: "speedtyping.v1.theme",
   motion: "speedtyping.v1.motion",
   best: "speedtyping.v1.best",
   locale: "speedtyping.v1.locale",
+  history: "speedtyping.v1.history",
 } as const;
 
 export const motionSchema = z.enum(MOTION_NAMES);
@@ -69,4 +70,21 @@ export function recordBest(
     return current;
   }
   return { ...current, [key]: candidate };
+}
+
+const historyRunSchema = z.object({
+  duration: z.union([z.literal(30), z.literal(60)]),
+  wpm: z.number().nonnegative(),
+  accuracy: z.number().min(0).max(100),
+  passageId: z.string().min(1),
+  locale: localeSchema,
+  at: z.string().min(1),
+});
+
+export const historySchema = z
+  .array(historyRunSchema)
+  .transform((runs) => runs.slice(0, HISTORY_LIMIT));
+
+export function recordHistory(current: HistoryRuns, run: HistoryRun): HistoryRuns {
+  return [run, ...current].slice(0, HISTORY_LIMIT);
 }

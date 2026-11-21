@@ -115,4 +115,33 @@ describe("App", () => {
     expect(screen.getByText("Restzeit")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "DE" })).toHaveAttribute("aria-pressed", "true");
   });
+
+  it("shows a recent-test history after a run, with the passage title in that run's locale", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText("Text"), "pangram");
+    await user.type(screen.getByLabelText("Typing test"), passageById("pangram").text);
+    const history = await screen.findByRole("region", { name: "Recent test history" });
+    expect(within(history).getByText(/Pangram/)).toBeInTheDocument();
+    expect(within(history).getByText(/30s/)).toBeInTheDocument();
+    const stored = JSON.parse(localStorage.getItem(KEYS.history) ?? "[]") as {
+      passageId: string;
+      locale: string;
+      duration: number;
+    }[];
+    expect(stored).toHaveLength(1);
+    expect(stored[0]).toMatchObject({ passageId: "pangram", locale: "en", duration: 30 });
+
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(screen.queryByRole("region", { name: "Recent test history" })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "DE" }));
+    await user.selectOptions(screen.getByLabelText("Text"), "pangram");
+    await user.type(screen.getByLabelText("Tippstest"), passageById("pangram", "de").text);
+    const deHistory = await screen.findByRole("region", { name: "Verlauf der letzten Tests" });
+    const items = within(deHistory).getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveTextContent("Pangramm");
+    expect(items[1]).toHaveTextContent("Pangram");
+  });
 });

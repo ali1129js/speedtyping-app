@@ -29,6 +29,8 @@ export interface UIStrings {
   yourBest: string;
   tryAgain: string;
   typingTest: string;
+  history: string;
+  historyAria: string;
 }
 
 export const STRINGS: Record<LocaleName, UIStrings> = {
@@ -62,6 +64,8 @@ export const STRINGS: Record<LocaleName, UIStrings> = {
     yourBest: "Your best {duration}s is {wpm} WPM.",
     tryAgain: "Try again",
     typingTest: "Typing test",
+    history: "Recent tests",
+    historyAria: "Recent test history",
   },
   de: {
     skipToContent: "Zum Inhalt springen",
@@ -93,6 +97,8 @@ export const STRINGS: Record<LocaleName, UIStrings> = {
     yourBest: "Deine beste {duration}s-Leistung ist {wpm} WPM.",
     tryAgain: "Nochmal",
     typingTest: "Tippstest",
+    history: "Letzte Tests",
+    historyAria: "Verlauf der letzten Tests",
   },
 };
 

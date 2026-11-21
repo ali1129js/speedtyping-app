@@ -1,4 +1,4 @@
-import type { LocaleName, Passage } from "./types";
+import type { HistoryRun, LocaleName, Passage } from "./types";
 
 const ENGLISH_PASSAGES: readonly Passage[] = [
   {
@@ -91,4 +91,8 @@ function firstPassage(list: readonly Passage[]): Passage {
 export function passageById(id: string, locale: LocaleName = "en"): Passage {
   const list = passagesFor(locale);
   return list.find((passage) => passage.id === id) ?? firstPassage(list);
+}
+
+export function passageTitleForRun(run: HistoryRun): string {
+  return passageById(run.passageId, run.locale).title;
 }

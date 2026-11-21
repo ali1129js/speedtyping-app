@@ -37,3 +37,16 @@ export type BestScores = {
   "30"?: BestScore | undefined;
   "60"?: BestScore | undefined;
 };
+
+export const HISTORY_LIMIT = 10;
+
+export interface HistoryRun {
+  duration: Duration;
+  wpm: number;
+  accuracy: number;
+  passageId: string;
+  locale: LocaleName;
+  at: string;
+}
+
+export type HistoryRuns = HistoryRun[];
