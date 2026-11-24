@@ -33,6 +33,7 @@ import { DURATIONS } from "./lib/types";
 import type {
   BestScores,
   Duration,
+  DurationKey,
   HistoryRuns,
   LocaleName,
   MotionName,
@@ -110,7 +111,7 @@ export function App() {
       accuracy: test.stats.accuracy,
       at: new Date().toISOString(),
     };
-    const previous = best[String(duration) as "30" | "60"];
+    const previous = best[String(duration) as DurationKey];
     const improved =
       previous === undefined ||
       candidate.wpm > previous.wpm ||
@@ -151,7 +152,7 @@ export function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [restart]);
 
-  const bestForDuration = best[String(duration) as "30" | "60"];
+  const bestForDuration = best[String(duration) as DurationKey];
   const canChangeSetup = test.phase !== "running";
 
   const status = useMemo(() => {
@@ -208,7 +209,7 @@ export function App() {
 
       <main id="main" tabIndex={-1} className="app-main">
         <div className="setup">
-          <div role="group" aria-label={strings.testLength} className="segmented">
+          <div role="group" aria-label={strings.testLength} className="segmented wrap">
             {DURATIONS.map((value) => (
               <button
                 key={value}

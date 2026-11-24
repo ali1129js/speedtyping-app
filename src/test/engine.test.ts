@@ -80,6 +80,8 @@ describe("hasFinished and remainingMs", () => {
     expect(hasFinished("abc", "a", 29_999, 30)).toBe(false);
     expect(remainingMs(30, 29_000)).toBe(1000);
     expect(remainingMs(30, 40_000)).toBe(0);
+    expect(remainingMs(15, 0)).toBe(15_000);
+    expect(remainingMs(120, 60_000)).toBe(60_000);
   });
 
   it("ends when the typist reaches the end of the text, even early", () => {

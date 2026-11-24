@@ -66,9 +66,47 @@ describe("App", () => {
     await user.keyboard("{Escape}");
     expect(screen.getByLabelText("Typing test")).toHaveValue("");
 
+    await user.click(screen.getByRole("button", { name: "15s" }));
+    expect(screen.getByRole("button", { name: "15s" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("timer")).toHaveTextContent("0:15");
+    await user.click(screen.getByRole("button", { name: "120s" }));
+    expect(screen.getByRole("button", { name: "120s" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("timer")).toHaveTextContent("2:00");
     await user.click(screen.getByRole("button", { name: "60s" }));
     expect(screen.getByRole("button", { name: "60s" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("timer")).toHaveTextContent("1:00");
+  });
+
+  it("stores a separate best and a history row for 15s and 120s", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText("Text"), "pangram");
+    await user.click(screen.getByRole("button", { name: "15s" }));
+    await user.type(screen.getByLabelText("Typing test"), passageById("pangram").text);
+    await screen.findByRole("region", { name: "Test result" });
+    const firstHistory = await screen.findByRole("region", { name: "Recent test history" });
+    expect(within(firstHistory).getByText(/15s/)).toBeInTheDocument();
+    const after15 = JSON.parse(localStorage.getItem(KEYS.best) ?? "{}") as {
+      "15"?: { wpm: number };
+      "120"?: { wpm: number };
+    };
+    expect(after15["15"]?.wpm).toBeGreaterThan(0);
+    expect(after15["120"]).toBeUndefined();
+
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    await user.click(screen.getByRole("button", { name: "120s" }));
+    await user.type(screen.getByLabelText("Typing test"), passageById("pangram").text);
+    await screen.findByRole("region", { name: "Test result" });
+    const history = await screen.findByRole("region", { name: "Recent test history" });
+    const items = within(history).getAllByRole("listitem");
+    expect(items[0]).toHaveTextContent("120s");
+    expect(items[1]).toHaveTextContent("15s");
+    const stored = JSON.parse(localStorage.getItem(KEYS.best) ?? "{}") as {
+      "15"?: { wpm: number };
+      "120"?: { wpm: number };
+    };
+    expect(stored["15"]?.wpm).toBeGreaterThan(0);
+    expect(stored["120"]?.wpm).toBeGreaterThan(0);
   });
 
   it("switches theme and stores the choice", async () => {

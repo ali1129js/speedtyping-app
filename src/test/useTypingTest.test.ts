@@ -45,3 +45,24 @@ describe("useTypingTest", () => {
     expect(result.current.typed).toBe("");
   });
 });
+
+it.each([15, 30, 60, 120] as const)(
+  "finishes a %s-second test when the clock runs out",
+  (duration) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-01T12:00:00.000Z"));
+    const { result } = renderHook(() => useTypingTest("hello world", duration));
+    act(() => {
+      result.current.onTyped("h");
+    });
+    act(() => {
+      vi.advanceTimersByTime(duration * 1000 - 1000);
+    });
+    expect(result.current.phase).toBe("running");
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(result.current.phase).toBe("finished");
+    expect(result.current.remaining).toBe(0);
+  },
+);

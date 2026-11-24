@@ -1,6 +1,14 @@
 import { z } from "zod";
 import { CUSTOM_TEXT_MAX, CUSTOM_TEXT_MIN } from "./customText";
-import type { BestScore, BestScores, Duration, HistoryRun, HistoryRuns, ThemeName } from "./types";
+import type {
+  BestScore,
+  BestScores,
+  Duration,
+  DurationKey,
+  HistoryRun,
+  HistoryRuns,
+  ThemeName,
+} from "./types";
 import { HISTORY_LIMIT, LEGACY_THEMES, LOCALE_NAMES, MOTION_NAMES, THEME_NAMES } from "./types";
 
 export const KEYS = {
@@ -28,8 +36,10 @@ const bestScoreSchema = z.object({
 });
 
 export const bestScoresSchema = z.object({
+  "15": bestScoreSchema.optional(),
   "30": bestScoreSchema.optional(),
   "60": bestScoreSchema.optional(),
+  "120": bestScoreSchema.optional(),
 });
 
 export function readStored<T>(key: string, schema: z.ZodType<T>, fallback: T): T {
@@ -85,7 +95,7 @@ export function recordBest(
   duration: Duration,
   candidate: BestScore,
 ): BestScores {
-  const key = String(duration) as "30" | "60";
+  const key = String(duration) as DurationKey;
   const existing = current[key];
   if (
     existing &&
@@ -98,7 +108,7 @@ export function recordBest(
 }
 
 const historyRunSchema = z.object({
-  duration: z.union([z.literal(30), z.literal(60)]),
+  duration: z.union([z.literal(15), z.literal(30), z.literal(60), z.literal(120)]),
   wpm: z.number().nonnegative(),
   accuracy: z.number().min(0).max(100),
   passageId: z.string().min(1),

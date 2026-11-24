@@ -1,5 +1,6 @@
-export const DURATIONS = [30, 60] as const;
+export const DURATIONS = [15, 30, 60, 120] as const;
 export type Duration = (typeof DURATIONS)[number];
+export type DurationKey = `${Duration}`;
 
 export const THEME_NAMES = ["khaki", "graphite", "midnight"] as const;
 export type ThemeName = (typeof THEME_NAMES)[number];
@@ -34,8 +35,7 @@ export interface BestScore {
 }
 
 export type BestScores = {
-  "30"?: BestScore | undefined;
-  "60"?: BestScore | undefined;
+  [K in DurationKey]?: BestScore | undefined;
 };
 
 export const HISTORY_LIMIT = 10;

@@ -1,6 +1,6 @@
 # Speed Typing
 
-A timed typing test with live WPM, accuracy, and character highlighting. Choose 30 or 60 seconds, pick a text, and start typing. Your best score for each length is saved in `localStorage`.
+A timed typing test with live WPM, accuracy, and character highlighting. Choose 15, 30, 60 or 120 seconds, pick a text, and start typing. Your best score for each length is saved in `localStorage`.
 
 **Live:** https://ali1129js.github.io/speedtyping-app/
 
@@ -30,7 +30,7 @@ Desktop (1280px). Motion is off (the default). The UI is English or German; the 
 
 ## Features
 
-- 30 or 60 second tests. The clock starts on the first character.
+- 15, 30, 60 or 120 second tests, each with its own stored best. The clock starts on the first character.
 - Live words per minute and accuracy. WPM uses correct characters divided by five, over the time elapsed.
 - Each character is marked correct, incorrect, or still to type. The current character is highlighted.
 - Restart from the button, or by pressing Escape. The test is usable from the keyboard alone.

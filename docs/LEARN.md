@@ -34,7 +34,7 @@ See `src/components/Prompt.tsx` and `src/App.tsx`.
 
 ## Validated best scores
 
-The best WPM for 30s and 60s is written to `localStorage` as JSON, then checked with a Zod schema on the way back in. Corrupt data is ignored, so a broken value cannot crash the page. A new result replaces the stored one only when the WPM is higher, or when the WPM is the same and the accuracy is better.
+The best WPM for each length (15, 30, 60 and 120 seconds) is written to `localStorage` as JSON, then checked with a Zod schema on the way back in. Corrupt data is ignored, so a broken value cannot crash the page. A new result replaces the stored one only when the WPM is higher, or when the WPM is the same and the accuracy is better.
 
 See `src/lib/storage.ts` and `src/test/storage.test.ts`.
 

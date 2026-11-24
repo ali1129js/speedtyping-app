@@ -104,3 +104,27 @@ describe("passageTitleForRun", () => {
     expect(passageTitleForRun(run({ passageId: "pangram", locale: "de" }))).toBe("Pangramm");
   });
 });
+
+describe("best-score migration", () => {
+  it("keeps an old 30/60 store and can add 15 and 120 beside it", () => {
+    const legacy = {
+      "30": { wpm: 40, accuracy: 96, at: "2026-01-01T00:00:00.000Z" },
+      "60": { wpm: 38, accuracy: 94, at: "2026-01-02T00:00:00.000Z" },
+    };
+    localStorage.setItem(KEYS.best, JSON.stringify(legacy));
+    const loaded = readStored(KEYS.best, bestScoresSchema, {});
+    expect(loaded).toEqual(legacy);
+    expect(loaded["15"]).toBeUndefined();
+    expect(loaded["120"]).toBeUndefined();
+
+    const next = recordBest(
+      recordBest(loaded, 15, { wpm: 50, accuracy: 99, at: "2026-01-03T00:00:00.000Z" }),
+      120,
+      { wpm: 20, accuracy: 90, at: "2026-01-04T00:00:00.000Z" },
+    );
+    expect(next["30"]).toEqual(legacy["30"]);
+    expect(next["60"]).toEqual(legacy["60"]);
+    expect(next["15"]?.wpm).toBe(50);
+    expect(next["120"]?.wpm).toBe(20);
+  });
+});
