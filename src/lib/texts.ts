@@ -1,3 +1,5 @@
+import { CUSTOM_PASSAGE_ID } from "./customText";
+import { STRINGS } from "./i18n";
 import type { HistoryRun, LocaleName, Passage } from "./types";
 
 const ENGLISH_PASSAGES: readonly Passage[] = [
@@ -94,5 +96,6 @@ export function passageById(id: string, locale: LocaleName = "en"): Passage {
 }
 
 export function passageTitleForRun(run: HistoryRun): string {
+  if (run.passageId === CUSTOM_PASSAGE_ID) return STRINGS[run.locale].customText;
   return passageById(run.passageId, run.locale).title;
 }

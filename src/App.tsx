@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { CustomTextForm } from "./components/CustomTextForm";
 import { HistoryList } from "./components/HistoryList";
 import { Prompt } from "./components/Prompt";
 import { StatsBar } from "./components/StatsBar";
@@ -7,15 +8,25 @@ import { useTypingTest } from "./hooks/useTypingTest";
 import { formatAccuracy, formatWpm } from "./lib/engine";
 import { STRINGS, applyLocale, fill } from "./lib/i18n";
 import {
+  CUSTOM_PASSAGE_ID,
+  CUSTOM_TEXT_MIN,
+  type CustomTextError,
+  validateCustomText,
+} from "./lib/customText";
+import {
   KEYS,
   bestScoresSchema,
+  clearStored,
+  customTextSchema,
   historySchema,
   localeSchema,
   motionSchema,
   preferredTheme,
+  readOptionalStored,
   recordBest,
   recordHistory,
   themeSchema,
+  writeStored,
 } from "./lib/storage";
 import { DEFAULT_PASSAGE_ID, passageById, passagesFor } from "./lib/texts";
 import { DURATIONS } from "./lib/types";
@@ -41,12 +52,34 @@ export function App() {
   const [history, setHistory] = useStoredState<HistoryRuns>(KEYS.history, historySchema, []);
   const [duration, setDuration] = useState<Duration>(30);
   const [passageId, setPassageId] = useState(DEFAULT_PASSAGE_ID);
+  const [customDraft, setCustomDraft] = useState("");
+  const [customApplied, setCustomApplied] = useState("");
+  const [rememberCustom, setRememberCustom] = useState(false);
+  const [customError, setCustomError] = useState<CustomTextError | null>(null);
   const strings = STRINGS[locale];
   const passages = passagesFor(locale);
-  const passage = passageById(passageId, locale);
-  const test = useTypingTest(passage.text, duration);
+  const customReady = customApplied.trim().length >= CUSTOM_TEXT_MIN;
+  const passage =
+    passageId === CUSTOM_PASSAGE_ID
+      ? {
+          id: CUSTOM_PASSAGE_ID,
+          title: strings.customText,
+          source: strings.customSource,
+          text: customApplied,
+        }
+      : passageById(passageId, locale);
+  const testReady = passageId !== CUSTOM_PASSAGE_ID || customReady;
+  const test = useTypingTest(testReady ? passage.text : "", duration);
   const recorded = useRef(false);
   const [isNewBest, setIsNewBest] = useState(false);
+
+  useEffect(() => {
+    const stored = readOptionalStored(KEYS.custom, customTextSchema);
+    if (stored === undefined) return;
+    setCustomDraft(stored.text);
+    setCustomApplied(stored.text);
+    setRememberCustom(true);
+  }, []);
 
   useEffect(() => applyTheme(theme), [theme]);
   useEffect(
@@ -56,6 +89,7 @@ export function App() {
   useEffect(() => applyLocale(locale), [locale]);
 
   useEffect(() => {
+    if (passageId === CUSTOM_PASSAGE_ID) return;
     if (!passages.some((item) => item.id === passageId)) {
       setPassageId(DEFAULT_PASSAGE_ID);
     }
@@ -121,10 +155,33 @@ export function App() {
   const canChangeSetup = test.phase !== "running";
 
   const status = useMemo(() => {
+    if (passageId === CUSTOM_PASSAGE_ID && !customReady) return strings.customNeeded;
     if (test.phase === "idle") return strings.startHint;
     if (test.phase === "running") return strings.runningHint;
     return strings.finishedHint;
-  }, [test.phase, strings]);
+  }, [test.phase, strings, passageId, customReady]);
+
+  function applyCustomText() {
+    const result = validateCustomText(customDraft);
+    if (!result.ok) {
+      setCustomError(result.error);
+      return;
+    }
+    setCustomError(null);
+    setCustomDraft(result.text);
+    setCustomApplied(result.text);
+    if (rememberCustom) writeStored(KEYS.custom, { text: result.text });
+  }
+
+  function changeRemember(next: boolean) {
+    setRememberCustom(next);
+    if (!next) {
+      clearStored(KEYS.custom);
+      return;
+    }
+    const result = validateCustomText(customApplied || customDraft);
+    if (result.ok) writeStored(KEYS.custom, { text: result.text });
+  }
 
   return (
     <div className="app">
@@ -178,12 +235,29 @@ export function App() {
                   {item.title}
                 </option>
               ))}
+              <option value={CUSTOM_PASSAGE_ID}>{strings.customText}</option>
             </select>
           </label>
           <button type="button" className="button" onClick={restart}>
             {strings.restart}
           </button>
         </div>
+
+        {passageId === CUSTOM_PASSAGE_ID ? (
+          <CustomTextForm
+            draft={customDraft}
+            error={customError}
+            remember={rememberCustom}
+            disabled={!canChangeSetup}
+            strings={strings}
+            onDraftChange={(value) => {
+              setCustomDraft(value);
+              setCustomError(null);
+            }}
+            onRememberChange={changeRemember}
+            onApply={applyCustomText}
+          />
+        ) : null}
 
         <p className="passage-source">{passage.source}</p>
 
@@ -197,11 +271,12 @@ export function App() {
         />
 
         <Prompt
-          target={passage.text}
+          target={testReady ? passage.text : ""}
           typed={test.typed}
           phase={test.phase}
-          onTyped={test.onTyped}
+          onTyped={testReady ? test.onTyped : () => undefined}
           label={strings.typingTest}
+          disabled={!testReady}
         />
 
         <p className="hint" aria-live="polite">

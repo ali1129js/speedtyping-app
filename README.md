@@ -35,6 +35,7 @@ Desktop (1280px). Motion is off (the default). The UI is English or German; the 
 - Each character is marked correct, incorrect, or still to type. The current character is highlighted.
 - Restart from the button, or by pressing Escape. The test is usable from the keyboard alone.
 - A best score per duration, kept in `localStorage`, and a short list of recent finished tests.
+- Paste your own passage (40 to 2000 characters). It is not kept unless you choose to remember it on this device.
 - A short list of texts: original passages, plus public-domain excerpts from Alice's Adventures in Wonderland and Pride and Prejudice, and the traditional pangram. German uses its own set, including umlauts and ß.
 - The UI is English or German. English is the default. The choice is remembered, like the theme, and sets the page language. Switching language also switches the practice passages.
 - Three themes from the gloss colour scheme: Khaki (the default light background), Graphite and Midnight. The first visit follows the operating system. The choice is remembered. A button next to the switch can turn on a slow, optional background motion; it stays off if you prefer reduced motion.

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CUSTOM_TEXT_MAX, CUSTOM_TEXT_MIN } from "./customText";
 import type { BestScore, BestScores, Duration, HistoryRun, HistoryRuns, ThemeName } from "./types";
 import { HISTORY_LIMIT, LEGACY_THEMES, LOCALE_NAMES, MOTION_NAMES, THEME_NAMES } from "./types";
 
@@ -8,6 +9,7 @@ export const KEYS = {
   best: "speedtyping.v1.best",
   locale: "speedtyping.v1.locale",
   history: "speedtyping.v1.history",
+  custom: "speedtyping.v1.custom",
 } as const;
 
 export const motionSchema = z.enum(MOTION_NAMES);
@@ -48,6 +50,29 @@ export function writeStored(key: string, value: unknown): void {
     /* ignore */
   }
 }
+
+export function clearStored(key: string): void {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readOptionalStored<T>(key: string, schema: z.ZodType<T>): T | undefined {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return undefined;
+    const parsed = schema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export const customTextSchema = z.object({
+  text: z.string().min(CUSTOM_TEXT_MIN).max(CUSTOM_TEXT_MAX),
+});
 
 export function preferredTheme(
   match: (query: string) => { matches: boolean } = (query) => window.matchMedia(query),

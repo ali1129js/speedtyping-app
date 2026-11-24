@@ -2,8 +2,9 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../App";
+import { CUSTOM_PASSAGE_ID, CUSTOM_TEXT_MAX, CUSTOM_TEXT_MIN } from "../lib/customText";
 import { KEYS } from "../lib/storage";
-import { passageById } from "../lib/texts";
+import { passageById, passageTitleForRun } from "../lib/texts";
 
 afterEach(() => {
   localStorage.clear();
@@ -143,5 +144,86 @@ describe("App", () => {
     expect(items).toHaveLength(2);
     expect(items[0]).toHaveTextContent("Pangramm");
     expect(items[1]).toHaveTextContent("Pangram");
+  });
+});
+
+const GERMAN_CUSTOM =
+  "Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich, dann ruht er sich aus.";
+
+describe("custom text", () => {
+  it("rejects a paste that is too short or too long, in both locales", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText("Text"), CUSTOM_PASSAGE_ID);
+    expect(screen.getByLabelText("Typing test")).toBeDisabled();
+    expect(
+      screen.getByText("Paste a passage and choose Use this text before starting."),
+    ).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Custom text"), "too short");
+    await user.click(screen.getByRole("button", { name: "Use this text" }));
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      `Enter at least ${CUSTOM_TEXT_MIN} characters.`,
+    );
+    expect(screen.getByLabelText("Typing test")).toBeDisabled();
+
+    await user.clear(screen.getByLabelText("Custom text"));
+    await user.click(screen.getByLabelText("Custom text"));
+    await user.paste("x".repeat(CUSTOM_TEXT_MAX + 1));
+    await user.click(screen.getByRole("button", { name: "Use this text" }));
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      `Keep the passage to ${CUSTOM_TEXT_MAX} characters or fewer.`,
+    );
+
+    await user.click(screen.getByRole("button", { name: "DE" }));
+    await user.selectOptions(screen.getByLabelText("Text"), CUSTOM_PASSAGE_ID);
+    await user.clear(screen.getByLabelText("Eigener Text"));
+    await user.type(screen.getByLabelText("Eigener Text"), "zu kurz");
+    await user.click(screen.getByRole("button", { name: "Diesen Text verwenden" }));
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      `Gib mindestens ${CUSTOM_TEXT_MIN} Zeichen ein.`,
+    );
+  });
+
+  it("uses a normal German paste for WPM, can restart, and only stores the text when opted in", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "DE" }));
+    await user.selectOptions(screen.getByLabelText("Text"), CUSTOM_PASSAGE_ID);
+    await user.type(screen.getByLabelText("Eigener Text"), GERMAN_CUSTOM);
+    await user.click(screen.getByRole("button", { name: "Diesen Text verwenden" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(localStorage.getItem(KEYS.custom)).toBeNull();
+
+    const input = screen.getByLabelText("Tippstest");
+    expect(input).toBeEnabled();
+    await user.type(input, GERMAN_CUSTOM);
+    const result = await screen.findByRole("region", { name: "Testergebnis" });
+    expect(within(result).getByText(/WPM/)).toBeInTheDocument();
+    const history = await screen.findByRole("region", { name: "Verlauf der letzten Tests" });
+    expect(within(history).getByText(/Eigener Text/)).toBeInTheDocument();
+    expect(
+      passageTitleForRun({
+        duration: 30,
+        wpm: 40,
+        accuracy: 96,
+        passageId: CUSTOM_PASSAGE_ID,
+        locale: "de",
+        at: "2026-01-01T00:00:00.000Z",
+      }),
+    ).toBe("Eigener Text");
+
+    await user.click(screen.getByRole("button", { name: "Nochmal" }));
+    expect(screen.queryByRole("region", { name: "Testergebnis" })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Tippstest")).toHaveValue("");
+    expect(screen.getByLabelText("Tippstest")).toBeEnabled();
+
+    await user.click(screen.getByLabelText("Diesen Text auf diesem Gerät merken"));
+    expect(JSON.parse(localStorage.getItem(KEYS.custom) ?? "null")).toEqual({
+      text: GERMAN_CUSTOM,
+    });
+
+    await user.click(screen.getByLabelText("Diesen Text auf diesem Gerät merken"));
+    expect(localStorage.getItem(KEYS.custom)).toBeNull();
   });
 });

@@ -31,6 +31,14 @@ export interface UIStrings {
   typingTest: string;
   history: string;
   historyAria: string;
+  customText: string;
+  customSource: string;
+  customPlaceholder: string;
+  customApply: string;
+  customRemember: string;
+  customTooShort: string;
+  customTooLong: string;
+  customNeeded: string;
 }
 
 export const STRINGS: Record<LocaleName, UIStrings> = {
@@ -66,6 +74,14 @@ export const STRINGS: Record<LocaleName, UIStrings> = {
     typingTest: "Typing test",
     history: "Recent tests",
     historyAria: "Recent test history",
+    customText: "Custom text",
+    customSource: "Your own text",
+    customPlaceholder: "Paste a passage to practise.",
+    customApply: "Use this text",
+    customRemember: "Remember this text on this device",
+    customTooShort: "Enter at least {min} characters.",
+    customTooLong: "Keep the passage to {max} characters or fewer.",
+    customNeeded: "Paste a passage and choose Use this text before starting.",
   },
   de: {
     skipToContent: "Zum Inhalt springen",
@@ -99,6 +115,14 @@ export const STRINGS: Record<LocaleName, UIStrings> = {
     typingTest: "Tippstest",
     history: "Letzte Tests",
     historyAria: "Verlauf der letzten Tests",
+    customText: "Eigener Text",
+    customSource: "Eigener Text",
+    customPlaceholder: "Einen eigenen Text zum Üben einfügen.",
+    customApply: "Diesen Text verwenden",
+    customRemember: "Diesen Text auf diesem Gerät merken",
+    customTooShort: "Gib mindestens {min} Zeichen ein.",
+    customTooLong: "Der Text darf höchstens {max} Zeichen lang sein.",
+    customNeeded: "Füge einen Text ein und wähle Diesen Text verwenden, bevor du startest.",
   },
 };
 

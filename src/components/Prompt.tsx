@@ -8,16 +8,17 @@ interface Props {
   phase: Phase;
   onTyped: (value: string) => void;
   label: string;
+  disabled?: boolean;
 }
 
-export function Prompt({ target, typed, phase, onTyped, label }: Props) {
+export function Prompt({ target, typed, phase, onTyped, label, disabled = false }: Props) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const marks = marksFor(target, typed);
-  const disabled = phase === "finished";
+  const locked = disabled || phase === "finished";
 
   useEffect(() => {
-    if (!disabled) inputRef.current?.focus();
-  }, [disabled, target]);
+    if (!locked) inputRef.current?.focus();
+  }, [locked, target]);
 
   return (
     <div className="prompt card" onClick={() => inputRef.current?.focus()}>
@@ -36,7 +37,7 @@ export function Prompt({ target, typed, phase, onTyped, label }: Props) {
         id="typing-input"
         className="prompt-input"
         value={typed}
-        disabled={disabled}
+        disabled={locked}
         autoCapitalize="off"
         autoCorrect="off"
         autoComplete="off"
