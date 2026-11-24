@@ -43,3 +43,9 @@ See `src/lib/storage.ts` and `src/test/storage.test.ts`.
 Colour tokens live in `src/styles/gloss.css` and are mirrored in TypeScript so a test can check WCAG contrast ratios. The page has three gloss themes — Khaki, Graphite and Midnight — plus an optional animated background that stays still when `prefers-reduced-motion` is set.
 
 See `src/styles/gloss.css`, `src/theme/themes.ts` and `src/test/theme.test.ts`.
+
+## Language and passage list switch together
+
+The EN/DE control does two jobs at once: it swaps the UI strings and it swaps the practice texts. That is deliberate. A German interface with an English passage (or the other way around) would leave typists practising the wrong language, and it would also drop umlauts and ß from the German set. `passagesFor(locale)` in `src/lib/texts.ts` and `STRINGS[locale]` in `src/lib/i18n.ts` both take the same `locale` value, so the two lists cannot drift apart. Shared passage ids (`workshop`, `harbour`, `pangram`) keep the same selection when you switch; a German-only id such as `grimm` falls back to the default if it is not in the English list.
+
+`applyLocale` also sets `document.documentElement.lang`. Screen readers, the browser's spellcheck, and hyphenation all take their language from that attribute. The typing input itself has spellcheck turned off, but the chrome around it (title, buttons, hints) should still be announced in the language on screen. Storing the locale in `localStorage` is not enough on its own: without `lang`, the page would look German and still be labelled English to assistive tools.
