@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "shots": "node scripts/screenshots.mjs docs"
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -35,6 +36,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.4.0",
     "jsdom": "^27.1.0",
+    "playwright-core": "^1.56.1",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.4",

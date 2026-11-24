@@ -11,28 +11,35 @@ const browser = await chromium.launch({
   args: ["--no-sandbox", "--disable-dev-shm-usage"],
 });
 
-async function shot(name, { theme, motion = "static", width, height, colorScheme }) {
+const typedByLocale = {
+  en: "A good workxhop",
+  de: "Ein guter Workxhop",
+};
+
+async function shot(name, { theme, locale, motion = "static", width, height, colorScheme }) {
   const context = await browser.newContext({
     viewport: { width, height },
     colorScheme,
     reducedMotion: motion === "animated" ? "no-preference" : "reduce",
-    locale: "en-GB",
+    locale: locale === "de" ? "de-DE" : "en-GB",
   });
   const page = await context.newPage();
   page.on("pageerror", (e) => console.error("PAGE ERROR", e.message));
   await page.addInitScript(
-    ([t, m]) => {
+    ([t, m, l]) => {
       localStorage.setItem("speedtyping.v1.theme", JSON.stringify(t));
       localStorage.setItem("speedtyping.v1.motion", JSON.stringify(m));
+      localStorage.setItem("speedtyping.v1.locale", JSON.stringify(l));
     },
-    [theme, motion],
+    [theme, motion, locale],
   );
   await page.goto(url, { waitUntil: "networkidle" });
   await page.waitForSelector(".prompt-text");
-  const input = page.getByLabel("Typing test");
+  const label = locale === "de" ? "Tippstest" : "Typing test";
+  const input = page.getByLabel(label);
   await input.focus();
-  await input.type("A good workxhop", { delay: 40 });
-  await page.waitForTimeout(3000);
+  await input.type(typedByLocale[locale], { delay: 40 });
+  await page.waitForTimeout(400);
   const path = `${outDir}/${name}`;
   await page.screenshot({ path, fullPage: true });
   const overflowX = await page.evaluate(
@@ -45,18 +52,21 @@ async function shot(name, { theme, motion = "static", width, height, colorScheme
 
 const overflows = [];
 for (const [name, opts] of [
-  ["desktop-khaki-1280.png", { theme: "khaki", width: 1280, height: 900, colorScheme: "light" }],
   [
-    "desktop-graphite-1280.png",
-    { theme: "graphite", width: 1280, height: 900, colorScheme: "dark" },
+    "en-khaki-1280.png",
+    { theme: "khaki", locale: "en", width: 1280, height: 900, colorScheme: "light" },
   ],
   [
-    "desktop-midnight-1280.png",
-    { theme: "midnight", width: 1280, height: 900, colorScheme: "dark" },
+    "en-graphite-1280.png",
+    { theme: "graphite", locale: "en", width: 1280, height: 900, colorScheme: "dark" },
   ],
   [
-    "desktop-khaki-1280-animated.png",
-    { theme: "khaki", motion: "animated", width: 1280, height: 900, colorScheme: "light" },
+    "de-khaki-1280.png",
+    { theme: "khaki", locale: "de", width: 1280, height: 900, colorScheme: "light" },
+  ],
+  [
+    "de-graphite-1280.png",
+    { theme: "graphite", locale: "de", width: 1280, height: 900, colorScheme: "dark" },
   ],
 ]) {
   if (await shot(name, opts)) overflows.push(name);
